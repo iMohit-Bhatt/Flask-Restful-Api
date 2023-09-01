@@ -8,44 +8,44 @@ obj = user_model()
 auth = auth_model()
 
 #Get Request Method
-@app.route('/users/getall')
+@app.route('/getall')
 @auth.token_auth()
 def user_getall_connector():
     return obj.user_getall_model()
 
 
 #Post Request Method
-@app.route('/users/addone', methods=['POST'])
+@app.route('/add', methods=['POST'])
 def user_addone_connector():
     return obj.user_addone_model(request.form)
 
 
 #Put Request Method
-@app.route('/users/update', methods=['PUT'])
+@app.route('/update', methods=['PUT'])
 def user_update_connector():
     return obj.user_update_model(request.form)
 
 
 #Delelte Request Method
-@app.route('/users/delete/<id>', methods=['DELETE'])
+@app.route('/delete/<id>', methods=['DELETE'])
 def user_delete_connector(id):
     return obj.user_delete_model(id)
 
 
 #Patch Request Method
-@app.route('/users/patch/<id>', methods=['PATCH'])
+@app.route('/patch/<id>', methods=['PATCH'])
 def user_patch_connector(id):
     return obj.user_patch_model(request.form, id)
 
 
 # pagination
-@app.route('/users/getall/limit/<limit>/page/<page>')
+@app.route('/users/getall/<limit>/<page>')
 def user_pagination_connector(limit, page):
     return obj.user_pagination_model(limit, page)
 
 
 #upload images:
-@app.route('/user/<id>/upload/avatar', methods=['PUT'])
+@app.route('/upload/avatar/<id>', methods=['PUT'])
 def user_upload_avatar_connector(id):
     file = request.files['avatar']
     uniqueFileName = str(datetime.now().timestamp()).replace(".", "")
@@ -57,12 +57,12 @@ def user_upload_avatar_connector(id):
 
 
 #Get the uploaded Images:
-@app.route('/upload/<filename>', methods=['GET'])
+@app.route('/avatar/<filename>', methods=['GET'])
 def user_uploaded_image_connector(filename):
     return send_file(f"upload/{filename}")
 
 
-@app.route('/user/login', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def user_login_controller():
     return obj.user_login_model(request.form)
 
