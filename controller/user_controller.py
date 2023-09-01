@@ -17,7 +17,7 @@ def user_getall_connector():
 #Post Request Method
 @app.route('/add', methods=['POST'])
 def user_addone_connector():
-    return obj.user_addone_model(request.form)
+    return obj.user_add_model(request.form)
 
 
 #Put Request Method

@@ -33,7 +33,7 @@ class user_model():
             return make_response({"payload" : result}, 200)
         
         
-    def user_addone_model(self, data):
+    def user_add_model(self, data):
         print("API WANTS TO CREATE A NEW USER")
         email = data['email'].split("@")
         mobile = data['phone']
@@ -201,7 +201,7 @@ class user_model():
 
 
     def user_update_model(self, data):
-        print("API WANTS TO CREATE A NEW USER")
+        print("API WANTS TO CREATE USER")
         email = data['email'].split("@")
         mobile = data['phone']
         print(len(mobile))
