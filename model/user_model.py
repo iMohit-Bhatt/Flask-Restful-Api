@@ -34,7 +34,7 @@ class user_model():
         
         
     def user_add_model(self, data):
-        print("API WANTS TO CREATE A NEW USER")
+        print("API WANTS TO CREATE NEW USER")
         email = data['email'].split("@")
         mobile = data['phone']
         print(len(mobile))

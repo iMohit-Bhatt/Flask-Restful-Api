@@ -14,7 +14,7 @@ def user_getall_connector():
     return obj.user_getall_model()
 
 
-#Post Request Method
+#Post Request Method of API
 @app.route('/add', methods=['POST'])
 def user_addone_connector():
     return obj.user_add_model(request.form)
