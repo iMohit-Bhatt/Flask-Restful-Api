@@ -153,53 +153,6 @@ class user_model():
                 else:
                     return make_response({"message" : "User with same secondary number already exist"}, 202)
  
-
-    # def user_update_model(self, data):
-        print("API WANTS TO UPDATE USER USING PUT METHOD")
-        if len(data) == 8:
-            self.cur.execute(f"SELECT * FROM users WHERE ID = {data['ID']}")
-            result = self.cur.fetchall()
-            if(len(result)< 1):
-                return make_response({"message" : "User Not Found"}, 202)
-
-            else:
-                no1 = data['secondary_no_1']
-                no2 = data['secondary_no_2']
-                email = data['email'].split("@")
-                mobile = data['phone']
-                print(email)
-                if no1 == no2:
-                    return make_response({"message": "Both secondary numbers are same"}, 202)
-                
-                if email[len(email)-1] not in mail:
-                    return make_response({"message": "Enter a valid email id"}, 202)
-                
-                if len(no1) != 10 or len(no2) != 10:
-                    return make_response({"message": "Secondary number should be of 10 digit"}, 202)
-
-                if len(mobile) != 10:
-                    return make_response({"message": "Phone number should be of 10 digit"}, 202)
-
-
-                for index in range(0, len(no1)):
-                    if no1[index] not in number:
-                        return make_response({"message": "Secondary number should be a number"}, 202)
-
-                    if no2[index] not in number:
-                        return make_response({"message": "Secondary number should be a number"}, 202)
-
-                    if mobile[index] not in number:
-                        return make_response({"message": "Phone number should be a number"}, 202)
-
-                self.cur.execute(f"UPDATE users SET name='{data['name']}', email='{data['email']}', phone='{data['phone']}', password='{data['password']}' , role_id='{data['role_id']}', secondary_number='{data['secondary_no_1']},{data['secondary_no_2']}' WHERE ID={data['ID']} ")
-                if self.cur.rowcount > 0:
-                    return make_response({"message" : "User Updated Successfully"}, 201)
-                else:
-                    return make_response({"message" : "Nothing to do"}, 202)
-        else:
-            return make_response({"message" : "Enter all the required fields"}, 202)
-
-
     def user_update_model(self, data):
         print("API WANTS TO CREATE USER")
         email = data['email'].split("@")
