@@ -1,6 +1,7 @@
 from flask import Flask, request
 
 app = Flask(__name__)
+app.secret_key= 'qwertyuiopasdfghjklzxcvbnm'
 
 @app.route('/')
 def new():

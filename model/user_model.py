@@ -1,6 +1,6 @@
 import mysql.connector
 import json
-from flask import make_response
+from flask import make_response, session
 from datetime import datetime
 from datetime import timedelta
 import jwt
@@ -9,6 +9,8 @@ from config.config import dbconfig
 number = ["1","2","3","4","5","6","7","8","9","0"]
 mail = ["gmail.com", "outlook.com"]
 user_data = ["name", "email", "phone", "password", "role_id", "secondary_no_1", "secondary_no_2", "ID"]
+# add_user = [1]
+# delete_user = [1,2]
 
 class user_model():
 
@@ -67,7 +69,7 @@ class user_model():
 
                 if no1 == no2:
                     return make_response({"message": "Both secondary numbers are same"}, 202)
-          
+        
 
         if email[len(email)-1] not in mail:
             return make_response({"message": "Enter a valid email id"}, 202)
@@ -95,31 +97,49 @@ class user_model():
                     return make_response({"message" : "User Created Successfully"}, 201)
 
         else:
-            self.cur.execute(f'SELECT secondary_number FROM users')
-            result = self.cur.fetchall()
-            
-            self.cur.execute(f'SELECT ID FROM users')
-            allId = self.cur.fetchall();
+                self.cur.execute(f'SELECT secondary_number FROM users')
+                result = self.cur.fetchall()
+                
+                self.cur.execute(f'SELECT ID FROM users')
+                allId = self.cur.fetchall();
 
-            list=[]
+                list=[]
 
-            for ID in allId:
-                id = ID['ID']
-                index = 0
-                self.cur.execute(f'SELECT secondary_number FROM users WHERE ID = {id}')
-                sec_num_result = self.cur.fetchall()
+                for ID in allId:
+                    id = ID['ID']
+                    index = 0
+                    self.cur.execute(f'SELECT secondary_number FROM users WHERE ID = {id}')
+                    sec_num_result = self.cur.fetchall()
 
-                for key in sec_num_result:
-                    sec_data = sec_num_result[index]["secondary_number"].replace(" ", "")
-                    index += 1
-                    # print(f'this is sec data {sec_data}')
-                    newData =sec_data.split(",")
-                    list.extend(newData)
-            
-            # print(f'This is list {list}')
-            if both:    
-                if no1 not in list:
-                    if no2 not in list:
+                    for key in sec_num_result:
+                        sec_data = sec_num_result[index]["secondary_number"].replace(" ", "")
+                        index += 1
+                        # print(f'this is sec data {sec_data}')
+                        newData =sec_data.split(",")
+                        list.extend(newData)
+                
+                # print(f'This is list {list}')
+                if both:    
+                    if no1 not in list:
+                        if no2 not in list:
+                            self.cur.execute(f"SELECT * FROM users WHERE email = '{data['email']}'")
+                            result = self.cur.fetchall()
+                            if len(result)>0:
+                                return make_response({"message" : "User with same email id already exsist"})
+                            else:
+                                self.cur.execute(f"SELECT * FROM users WHERE phone = '{data['phone']}'") 
+                                result = self.cur.fetchall()
+                                if len(result)>0:
+                                    return make_response({"message" : "User with same phone number already exsist"})
+                                else:
+                                    self.cur.execute(f"INSERT INTO users (name, email, phone, password, role_id, secondary_number) VALUES ('{data['name']}', '{data['email']}', '{data['phone']}', '{data['password']}', '{data['role_id']}', '{data['secondary_no_1']},{data['secondary_no_2']}')")
+                                    return make_response({"message" : "User Created Successfully"}, 201)
+                        else:
+                            return make_response({"message" : "User with same secondary number already exist"}, 202)
+                    else:
+                        return make_response({"message" : "User with same secondary number already exist"}, 202)
+                else:
+                    if no1 not in list:
                         self.cur.execute(f"SELECT * FROM users WHERE email = '{data['email']}'")
                         result = self.cur.fetchall()
                         if len(result)>0:
@@ -130,29 +150,11 @@ class user_model():
                             if len(result)>0:
                                 return make_response({"message" : "User with same phone number already exsist"})
                             else:
-                                self.cur.execute(f"INSERT INTO users (name, email, phone, password, role_id, secondary_number) VALUES ('{data['name']}', '{data['email']}', '{data['phone']}', '{data['password']}', '{data['role_id']}', '{data['secondary_no_1']},{data['secondary_no_2']}')")
+                                self.cur.execute(f"INSERT INTO users (name, email, phone, password, role_id, secondary_number) VALUES ('{data['name']}', '{data['email']}', '{data['phone']}', '{data['password']}', '{data['role_id']}', '{data['secondary_no_1']}')")
                                 return make_response({"message" : "User Created Successfully"}, 201)
                     else:
                         return make_response({"message" : "User with same secondary number already exist"}, 202)
-                else:
-                    return make_response({"message" : "User with same secondary number already exist"}, 202)
-            else:
-                if no1 not in list:
-                    self.cur.execute(f"SELECT * FROM users WHERE email = '{data['email']}'")
-                    result = self.cur.fetchall()
-                    if len(result)>0:
-                        return make_response({"message" : "User with same email id already exsist"})
-                    else:
-                        self.cur.execute(f"SELECT * FROM users WHERE phone = '{data['phone']}'") 
-                        result = self.cur.fetchall()
-                        if len(result)>0:
-                            return make_response({"message" : "User with same phone number already exsist"})
-                        else:
-                            self.cur.execute(f"INSERT INTO users (name, email, phone, password, role_id, secondary_number) VALUES ('{data['name']}', '{data['email']}', '{data['phone']}', '{data['password']}', '{data['role_id']}', '{data['secondary_no_1']}')")
-                            return make_response({"message" : "User Created Successfully"}, 201)
-                else:
-                    return make_response({"message" : "User with same secondary number already exist"}, 202)
- 
+
     def user_update_model(self, data):
         print("API WANTS TO CREATE USER")
         email = data['email'].split("@")
@@ -303,7 +305,7 @@ class user_model():
             return make_response({"message" : "User Deleted Successfully"}, 200)
         else:
             return make_response({"message" : "Nothing to do"}, 202)
-    
+        
 
     def user_patch_model(self, data, id):
         print("API WANTS TO UPDATE USER USING PUT METHOD")
@@ -348,6 +350,7 @@ class user_model():
         print("API WANTS TO GET JWT TOKEN")
         self.cur.execute(f"SELECT ID, email, phone, avatar, role_id, secondary_number FROM users WHERE email='{data['email']}' and password='{data['password']}'")
         result = self.cur.fetchall()
+        session['role_id'] = result[0]['role_id']
         if len(result) > 0:
             userdata = result[0]
             exp_time = datetime.now() + timedelta(minutes=15)
@@ -390,3 +393,6 @@ class user_model():
                
         return {"message" : "user does not exsist"}
         
+
+    def user_logout_model(self):
+        return "logout model"

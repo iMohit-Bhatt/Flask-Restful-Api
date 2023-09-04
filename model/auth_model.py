@@ -21,10 +21,12 @@ class auth_model ():
 
 
 #the func is the function below the decorator
-    def token_auth(self, endpoint = ""):
+    def token_auth(self, id, endpoint = ""):
+        print("hello hello 1")
         def inner1(func):
+            print(id)
             @wraps(func)                                                                                                                    
-            def inner2(*args):
+            def inner2(*args, **kwargs):
                 endpoint = request.url_rule
                 print(endpoint)
                 authorization = request.headers.get("authorization")
@@ -43,7 +45,7 @@ class auth_model ():
                         allowed_roles = json.loads(result[0]['roles'])
                         print(allowed_roles)
                         if role_id in allowed_roles:
-                            return func(*args)
+                            return func(*args, **kwargs)
                         else:
                             return make_response({"Error" : "Invalid Role"}, 403)
                     else:
