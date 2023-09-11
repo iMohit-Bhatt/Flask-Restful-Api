@@ -7,6 +7,18 @@ from flask_expects_json import expects_json
 obj = user_model()
 auth = auth_model()
 
+schema = {
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "email": { "type": "string" },
+    "phone": {"type": "number"},
+    "secondary_number": {"type": "number"},
+    "role_id" : {"type": "number"},
+    "password": {"type" : "string"}
+  }
+}
+
 #Get Request Method
 @app.route('/getall', methods=['GET', 'POST', 'DELETE', 'PUT', 'PATCH'])
 @auth.token_auth(id="")
@@ -115,7 +127,7 @@ def getdata(no):
 
 @app.route("/logout",  methods=['GET', 'POST', 'DELETE', 'PUT', 'PATCH'])
 def logout():
-    if request.method == 'DELETE':
+    if request.method == 'POST':
         return obj.user_logout_model()
     else:
         return make_response({"Error" : "This Method is not allowed please use the DELTET method"}, 405)

@@ -1,16 +1,26 @@
 import mysql.connector
 import json
-from flask import make_response, session
+from flask import make_response, session, request
 from datetime import datetime
 from datetime import timedelta
 import jwt
 from config.config import dbconfig
+import re
 
-number = ["1","2","3","4","5","6","7","8","9","0"]
-mail = ["gmail.com", "outlook.com"]
-user_data = ["name", "email", "phone", "password", "role_id", "secondary_no_1", "secondary_no_2", "ID"]
-# add_user = [1]
-# delete_user = [1,2]
+mobRegex = re.compile(r'^\d{10}$')
+emailRegex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')  
+user_data = [
+    "name",
+    "email",
+    "phone",
+    "password",
+    "role_id",
+    "secondary_no_1",
+    "secondary_no_2",
+    "ID"
+]
+token_blacklist = []
+
 
 class user_model():
 
@@ -37,12 +47,22 @@ class user_model():
         
     def user_add_model(self, data):
         print("API WANTS TO CREATE NEW USER")
-        email = data['email'].split("@")
+        userEmail = data['email']
         mobile = data['phone']
-        print(len(mobile))
         not_secondary_Number = True
         both = False
 
+        if re.fullmatch(emailRegex, userEmail):
+            pass
+        else:
+            return make_response({"message": "Email is not valid"})
+
+        if re.fullmatch(mobRegex, mobile):
+            pass
+        else:
+            print("i'm here")
+            return make_response({"message": "Entered mobile number is not valid"})
+        
         for key in data:
             if key not in user_data:
                 return make_response({"message": "Please Enter all the required details only"})
@@ -50,38 +70,24 @@ class user_model():
             if key == "secondary_no_1":
                 no1 = data['secondary_no_1']
                 not_secondary_Number = False
-                if len(no1) != 10:
-                    return make_response({"message": "Secondary number should be of 10 digit"}, 202)
-                
-                for index in range(0, 10):
-                    if no1[index] not in number:
-                        return make_response({"message": "Secondary number should be a number"}, 202)
+                                
+                if re.fullmatch(mobRegex, no1):
+                    pass
+                else:
+                    return make_response({"message": "Secondary number is not valid"}, 202)
 
             if key == "secondary_no_2":
                 no2 = data['secondary_no_2']
                 both = True
-                if len(no2) != 10:
-                    return make_response({"message": "Secondary number should be of 10 digit"}, 202)
                 
-                for index in range(0, 10):
-                    if no1[index] not in number:
-                        return make_response({"message": "Secondary number should be a number"}, 202)
+                if re.fullmatch(mobRegex, no2):
+                    pass
+                else:
+                    return make_response({"message": "Secondary number is not valid"}, 202)
 
                 if no1 == no2:
                     return make_response({"message": "Both secondary numbers are same"}, 202)
-        
-
-        if email[len(email)-1] not in mail:
-            return make_response({"message": "Enter a valid email id"}, 202)
-
-        if len(mobile) != 10:
-            return make_response({"message": "Phone number should be of 10 digit"}, 202)
-
-
-        for index in range(0, 10):
-            if mobile[index] not in number:
-                return make_response({"message": "Phone number should be a number"}, 202)
-    
+            
         if not_secondary_Number:
             self.cur.execute(f"SELECT * FROM users WHERE email = '{data['email']}'")
             result = self.cur.fetchall()
@@ -155,15 +161,27 @@ class user_model():
                     else:
                         return make_response({"message" : "User with same secondary number already exist"}, 202)
 
+
     def user_update_model(self, data):
         print("API WANTS TO CREATE USER")
-        email = data['email'].split("@")
+        userEmail = data['email']
         mobile = data['phone']
         print(len(mobile))
         not_secondary_Number = True
         both = False
         email_exist = False
         phone_exist = False
+
+        if re.fullmatch(emailRegex, userEmail):
+            pass
+        else:
+            return make_response({"message": "Email is not valid"})
+
+        if re.fullmatch(mobRegex, mobile):
+            pass
+        else:
+            print("i'm here")
+            return make_response({"message": "Entered mobile number is not valid"})
 
         self.cur.execute(f"SELECT * FROM users WHERE email='{data['email']}'")
         result = self.cur.fetchall()
@@ -182,38 +200,24 @@ class user_model():
             if key == "secondary_no_1":
                 no1 = data['secondary_no_1']
                 not_secondary_Number = False
-                if len(no1) != 10:
-                    return make_response({"message": "Secondary number should be of 10 digit"}, 202)
-                
-                for index in range(0, 10):
-                    if no1[index] not in number:
-                        return make_response({"message": "Secondary number should be a number"}, 202)
+                                
+                if re.fullmatch(mobRegex, no1):
+                    pass
+                else:
+                    return make_response({"message": "Secondary number is not valid"}, 202)
 
             if key == "secondary_no_2":
                 no2 = data['secondary_no_2']
                 both = True
-                if len(no2) != 10:
-                    return make_response({"message": "Secondary number should be of 10 digit"}, 202)
                 
-                for index in range(0, 10):
-                    if no1[index] not in number:
-                        return make_response({"message": "Secondary number should be a number"}, 202)
+                if re.fullmatch(mobRegex, no2):
+                    pass
+                else:
+                    return make_response({"message": "Secondary number is not valid"}, 202)
 
                 if no1 == no2:
                     return make_response({"message": "Both secondary numbers are same"}, 202)
-          
-
-        if email[len(email)-1] not in mail:
-            return make_response({"message": "Enter a valid email id"}, 202)
-
-        if len(mobile) != 10:
-            return make_response({"message": "Phone number should be of 10 digit"}, 202)
-
-
-        for index in range(0, 10):
-            if mobile[index] not in number:
-                return make_response({"message": "Phone number should be a number"}, 202)
-    
+              
         if not_secondary_Number:
             print("I'm here in not secondry number conditional statement")
             self.cur.execute(f"SELECT * FROM users WHERE ID = '{data['ID']}'")
@@ -395,4 +399,8 @@ class user_model():
         
 
     def user_logout_model(self):
-        return "logout model"
+        token = request.headers.get('Authorization')
+        token = token.split(" ")[1]
+        token_blacklist.append(token)
+        print(token_blacklist)
+        return make_response({"Message": "User Logout Successfull"})

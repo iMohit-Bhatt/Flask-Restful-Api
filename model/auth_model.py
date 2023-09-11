@@ -7,7 +7,7 @@ import jwt
 import re
 from config.config import dbconfig
 from functools import wraps
-
+from model.user_model import token_blacklist
 
 class auth_model ():
     def __init__(self):
@@ -22,17 +22,17 @@ class auth_model ():
 
 #the func is the function below the decorator
     def token_auth(self, id, endpoint = ""):
-        print("hello hello 1")
         def inner1(func):
             print(id)
             @wraps(func)                                                                                                                    
             def inner2(*args, **kwargs):
                 endpoint = request.url_rule
-                print(endpoint)
                 authorization = request.headers.get("authorization")
-                # if re.match("^Bearer *([^ ]+) *$", authorization, flags=0):
                 if re.match("Bearer ", authorization, flags=0):
                     token = authorization.split(" ")[1]
+                    if len(token_blacklist) > 0:
+                        if token == token_blacklist[0]:
+                            return make_response({"Error" : "Session Expired Please Login Again"}, 404)
                     try:
                         jwtdecoded = jwt.decode(token, "mohit", algorithms="HS256")
                     except:
